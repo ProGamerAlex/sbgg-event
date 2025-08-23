@@ -1,101 +1,238 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Level 6 · David Lynch</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ARG Puzzle</title>
   <style>
-    :root {
-      --bg: #0e0e0f;
-      --panel: #17181a;
-      --text: #e7e7e9;
-      --muted: #a9abb3;
-      --ok: #3bd671;
-      --bad: #ff5d5d;
-      --accent: #8a7dff;
+    :root{
+      --bg: #0b0d12;
+      --bg2: #0a0a0a;
+      --card: #111418;
+      --text: #e9eef5;
+      --muted: #9aa3ac;
+      --field: #0f1216;
+      --ring: rgba(139,92,246,.35);
+      --primary: #8b5cf6; /* purple */
+      --primary-strong: #7c3aed;
+      --shadow: 0 20px 60px rgba(0,0,0,.35), 0 8px 20px rgba(0,0,0,.35);
+      --radius: 18px;
     }
-    * { box-sizing: border-box; }
-    html, body {
-      height: 100%;
-      margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      background: radial-gradient(1200px 800px at 50% -10%, #15161a, var(--bg));
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1000px 600px at 70% -20%, rgba(139,92,246,.15), transparent),
+                  linear-gradient(180deg, var(--bg), var(--bg2) 60%);
       color: var(--text);
-    }
-    .wrap {
-      max-width: 640px;
-      margin: 0 auto;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+      display:flex;
+      align-items:center;
+      justify-content:center;
       padding: 24px;
-      min-height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
-    .card {
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 18px;
-      box-shadow: 0 25px 70px rgba(0,0,0,0.55);
-      padding: 28px;
-      width: 100%;
+
+    .card{
+      width: min(720px, 92vw);
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)) , var(--card);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: clamp(20px, 5vw, 40px);
+      position: relative;
+      border: 1px solid rgba(255,255,255,.06);
     }
-    h1 {
-      font-size: 26px;
-      margin: 0 0 8px 0;
-      letter-spacing: 0.3px;
+
+    h1{
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4.6vw, 42px);
+      font-weight: 800;
+      letter-spacing: .3px;
     }
-    p.hint {
-      margin: 0 0 18px 0;
+
+    p.sub{
+      margin: 0 0 24px;
       color: var(--muted);
-      font-size: 14px;
+      font-size: clamp(14px, 2.3vw, 18px);
     }
-    .row {
-      display: flex;
-      gap: 8px;
-      margin: 12px 0 0 0;
+
+    .row{
+      display:flex;
+      gap: 14px;
+      align-items:center;
     }
-    input[type="text"] {
-      flex: 1;
-      padding: 12px 14px;
-      font-size: 16px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.15);
-      background: #111216;
+
+    input[type="text"]{
+      flex:1;
+      padding: 16px 18px;
+      font-size: 18px;
       color: var(--text);
+      background: var(--field);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 16px;
       outline: none;
+      transition: box-shadow .2s ease, border-color .2s ease;
     }
-    button {
-      padding: 12px 16px;
+    input::placeholder{ color: #6b7280; }
+    input:focus{
+      border-color: var(--ring);
+      box-shadow: 0 0 0 6px var(--ring);
+    }
+
+    button.primary{
+      padding: 14px 20px;
       font-size: 16px;
-      border-radius: 12px;
-      border: 0;
-      background: var(--accent);
+      border-radius: 16px;
+      border: none;
+      background: var(--primary);
       color: white;
+      font-weight: 700;
       cursor: pointer;
+      transition: transform .05s ease, filter .2s ease, background .2s ease;
     }
-    #result {
-      margin-top: 14px;
+    button.primary:active{ transform: translateY(1px); }
+    button.primary:hover{ filter: brightness(1.05); background: var(--primary-strong); }
+
+    #result{
+      margin-top: 18px;
       font-size: 16px;
-      min-height: 24px;
+      min-height: 22px;
     }
-    .ok { color: var(--ok); }
-    .bad { color: var(--bad); }
-    .tiny { font-size: 12px; color: var(--muted); margin-top: 12px; }
+    #result.ok{ color: #89ffa1; }
+    #result.err{ color: #ff8888; }
+
+    /* Top-right hint icon */
+    .hint-btn{
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.06);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      cursor: pointer;
+      color: white;
+      font-size: 18px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.25);
+      transition: transform .06s ease, filter .2s ease, background .2s ease;
+      z-index: 5;
+    }
+    .hint-btn:hover{ filter: brightness(1.08); background: rgba(255,255,255,.10); }
+    .hint-btn:active{ transform: translateY(1px); }
+
+    /* Center hint popup */
+    .hint-popup{
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      pointer-events: none; /* no clicks lock */
+      opacity: 0;
+      transition: opacity 400ms ease;
+      z-index: 10;
+    }
+    .hint-popup .bubble{
+      pointer-events: auto;
+      max-width: min(90vw, 560px);
+      background: rgba(0,0,0,.85);
+      color: #fff;
+      padding: 18px 22px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.1);
+      text-align: center;
+      font-size: clamp(16px, 2.6vw, 18px);
+      line-height: 1.4;
+      box-shadow: var(--shadow);
+    }
+    .hint-popup.show{ opacity: 1; }
+
+    /* Reduce motion preference */
+    @media (prefers-reduced-motion: reduce){
+      *{ transition: none !important; animation: none !important; }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Level 6: Lynch</h1>
-      <p class="hint">Enter the code word:</p>
-      <div class="row">
-        <input id="answer" type="text" placeholder="Type your answer here" autocomplete="off" autofocus>
-        <button id="submitBtn">Submit</button>
-      </div>
-      <div id="result"></div>
-      <div class="tiny">Tip: answers are case-insensitive.</div>
+  <!-- Hint icon (top-right). Change the data-hint or HINT_TEXT to update the hint -->
+  <button class="hint-btn" id="hintBtn" aria-label="Show hint" title="Hint" data-hint="It’s something you do when you sleep... 💤">?</button>
+
+  <div class="card">
+    <h1>Level 6: Lynch</h1>
+    <p class="sub">Enter the code word:</p>
+
+    <div class="row">
+      <input id="answer" type="text" placeholder="Type your answer here" autocomplete="off" />
+      <button class="primary" id="submitBtn" onclick="checkAnswer()">Submit</button>
     </div>
+
+    <div id="result" aria-live="polite"></div>
+    <p class="sub" style="margin-top:16px">Tip: answers are case-insensitive.</p>
   </div>
+
+  <!-- Hint popup -->
+  <div id="hintPopup" class="hint-popup" role="dialog" aria-modal="true" aria-live="polite" aria-hidden="true">
+    <div class="bubble" id="hintText"></div>
+  </div>
+
+  <script>
+    // ======= CONFIG YOU CAN CHANGE =======
+    const CORRECT_WORD = "redroom"; // set your password here
+    const HINT_TEXT = null;       // if null, we will take from the button's data-hint attribute
+    const HINT_DURATION_MS = 5000; // visible time before fade
+    const HINT_FADE_MS = 800;      // fade-out duration
+    // ====================================
+
+    const resultEl = document.getElementById("result");
+    const hintBtn = document.getElementById("hintBtn");
+    const hintPopup = document.getElementById("hintPopup");
+    const hintText = document.getElementById("hintText");
+
+    function checkAnswer(){
+      const input = document.getElementById("answer").value.trim().toLowerCase();
+      if (input === CORRECT_WORD.toLowerCase()){
+        resultEl.textContent = "✅ Correct! You passed to the next level.";
+        resultEl.className = "ok";
+        // window.location.href = "nextlevel.html";
+      } else {
+        resultEl.textContent = "❌ Incorrect. Try again.";
+        resultEl.className = "err";
+      }
+    }
+
+    function showHint(){
+      const text = (HINT_TEXT ?? hintBtn.getAttribute("data-hint") ?? "No hint set.");
+      hintText.textContent = text;
+
+      // show
+      hintPopup.classList.add("show");
+      hintPopup.setAttribute("aria-hidden","false");
+
+      // hide after duration with fade
+      clearTimeout(showHint._hideTimer);
+      showHint._hideTimer = setTimeout(() => {
+        hintPopup.style.opacity = "0";
+        setTimeout(() => {
+          hintPopup.classList.remove("show");
+          hintPopup.style.opacity = "";
+          hintPopup.setAttribute("aria-hidden","true");
+        }, HINT_FADE_MS);
+      }, HINT_DURATION_MS);
+    }
+
+    hintBtn.addEventListener("click", showHint);
+
+    // Submit with Enter key
+    document.getElementById("answer").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") checkAnswer();
+    });
+  </script>
 
   <script>
     (function() {
