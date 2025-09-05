@@ -16,32 +16,40 @@
       --primary: #8b5cf6; /* purple */
       --primary-strong: #7c3aed;
       --shadow: 0 20px 60px rgba(0,0,0,.35), 0 8px 20px rgba(0,0,0,.35);
-      --radius: 18px;
     }
     *{box-sizing:border-box}
-    html,body{height:100%}
+    html,body{height:100%;margin:0}
     body{
-      margin:0;
-      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
       background: radial-gradient(1000px 600px at 70% -20%, rgba(139,92,246,.15), transparent),
                   linear-gradient(180deg, var(--bg), var(--bg2) 60%);
       color: var(--text);
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      text-rendering: optimizeLegibility;
       display:flex;
       align-items:center;
       justify-content:center;
-      padding: 24px;
+      padding:24px;
+    }
+
+    .container{
+      display:flex;
+      gap:24px;
+      width: min(1200px, 95vw);
+    }
+
+    .half{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
 
     .card{
-      width: min(720px, 92vw);
+      width: 100%;
+      max-width: 500px;
       background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)) , var(--card);
       border-radius: 28px;
       box-shadow: var(--shadow);
       padding: clamp(20px, 5vw, 40px);
-      position: relative;
       border: 1px solid rgba(255,255,255,.06);
     }
 
@@ -49,7 +57,6 @@
       margin: 0 0 10px;
       font-size: clamp(28px, 4.6vw, 42px);
       font-weight: 800;
-      letter-spacing: .3px;
     }
 
     p.sub{
@@ -103,7 +110,28 @@
     #result.ok{ color: #89ffa1; }
     #result.err{ color: #ff8888; }
 
-    /* Top-right hint icon */
+    /* Media box */
+    .media-box{
+      width:100%;
+      max-width:500px;
+      height:85%;
+      background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.01)) , var(--card);
+      border-radius:28px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,.06);
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .media-box img,
+    .media-box video{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    /* Hint button */
     .hint-btn{
       position: fixed;
       top: 16px;
@@ -116,7 +144,6 @@
       border: 1px solid rgba(255,255,255,.08);
       background: rgba(255,255,255,.06);
       backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
       cursor: pointer;
       color: white;
       font-size: 18px;
@@ -127,13 +154,13 @@
     .hint-btn:hover{ filter: brightness(1.08); background: rgba(255,255,255,.10); }
     .hint-btn:active{ transform: translateY(1px); }
 
-    /* Center hint popup */
+    /* Hint popup */
     .hint-popup{
       position: fixed;
       inset: 0;
       display: grid;
       place-items: center;
-      pointer-events: none; /* no clicks lock */
+      pointer-events: none;
       opacity: 0;
       transition: opacity 400ms ease;
       z-index: 10;
@@ -153,68 +180,88 @@
     }
     .hint-popup.show{ opacity: 1; }
 
-    /* Reduce motion preference */
-    @media (prefers-reduced-motion: reduce){
-      *{ transition: none !important; animation: none !important; }
+    @media(max-width:768px){
+      .container{flex-direction:column;}
     }
   </style>
 </head>
 <body>
-  <!-- Hint icon (top-right). Change the data-hint or HINT_TEXT to update the hint -->
-  <button class="hint-btn" id="hintBtn" aria-label="Show hint" title="Hint" data-hint="It’s something you do when you sleep... 💤">?</button>
+  <!-- Hint icon -->
+  <button class="hint-btn" id="hintBtn" data-hint="https://www.boxentriq.com/code-breaking/one-time-pad">?</button>
 
-  <div class="card">
-    <h1>Level 1: Nolan</h1>
-    <p class="sub">Enter the code word:</p>
+  <div class="container">
+    <!-- Left: Puzzle card -->
+    <div class="half">
+      <div class="card">
+        <h1>Level 1: Nolan</h1>
+        <p class="sub">Enter the code word:</p>
 
-    <div class="row">
-      <input id="answer" type="text" placeholder="Type your answer here" autocomplete="off" />
-      <button class="primary" id="submitBtn" onclick="checkAnswer()">Submit</button>
+        <div class="row">
+          <input id="answer" type="text" placeholder="Type your answer here" autocomplete="off" />
+          <button class="primary" id="submitBtn">Submit</button>
+        </div>
+
+        <div id="result" aria-live="polite"></div>
+        <p class="sub" style="margin-top:16px">Tip: answers are case-insensitive.</p>
+      </div>
     </div>
 
-    <div id="result" aria-live="polite"></div>
-    <p class="sub" style="margin-top:16px">Tip: answers are case-insensitive.</p>
+    <!-- Right: Media box -->
+    <div class="half">
+      <div class="media-box">
+        <!-- Replace with your image or video -->
+        <img src="Slide1.jpeg" alt="Puzzle media" />
+      </div>
+    </div>
   </div>
 
   <!-- Hint popup -->
-  <div id="hintPopup" class="hint-popup" role="dialog" aria-modal="true" aria-live="polite" aria-hidden="true">
+  <div id="hintPopup" class="hint-popup" aria-hidden="true">
     <div class="bubble" id="hintText"></div>
   </div>
 
   <script>
-    // ======= CONFIG YOU CAN CHANGE =======
-    const CORRECT_WORD = "dream"; // set your password here
-    const HINT_TEXT = null;       // if null, we will take from the button's data-hint attribute
-    const HINT_DURATION_MS = 5000; // visible time before fade
-    const HINT_FADE_MS = 800;      // fade-out duration
-    // ====================================
+    const CORRECT_WORD = "BFYRQ"; // password
+    const nextPage = "level2.html";
 
-    const resultEl = document.getElementById("result");
-    const hintBtn = document.getElementById("hintBtn");
-    const hintPopup = document.getElementById("hintPopup");
-    const hintText = document.getElementById("hintText");
+    const input = document.getElementById("answer");
+    const btn = document.getElementById("submitBtn");
+    const result = document.getElementById("result");
 
-    function checkAnswer(){
-      const input = document.getElementById("answer").value.trim().toLowerCase();
-      if (input === CORRECT_WORD.toLowerCase()){
-        resultEl.textContent = "✅ Correct! You passed to the next level.";
-        resultEl.className = "ok";
-        // window.location.href = "nextlevel.html";
-      } else {
-        resultEl.textContent = "❌ Incorrect. Try again.";
-        resultEl.className = "err";
+    function check(){
+      const val = (input.value || "").trim().toLowerCase();
+      if(!val){
+        result.className = "err";
+        result.textContent = "Please enter something.";
+        return;
+      }
+      if(val === CORRECT_WORD.toLowerCase()){
+        result.className = "ok";
+        result.textContent = "✅ Correct! Advancing...";
+        setTimeout(()=> window.location.href = nextPage, 1000);
+      }else{
+        result.className = "err";
+        result.textContent = "❌ Incorrect. Try again.";
       }
     }
 
+    btn.addEventListener("click", check);
+    input.addEventListener("keydown", e=>{ if(e.key==="Enter") check(); });
+
+    // Hint logic
+    const hintBtn = document.getElementById("hintBtn");
+    const hintPopup = document.getElementById("hintPopup");
+    const hintText = document.getElementById("hintText");
+    const HINT_DURATION_MS = 5000;
+    const HINT_FADE_MS = 800;
+
     function showHint(){
-      const text = (HINT_TEXT ?? hintBtn.getAttribute("data-hint") ?? "No hint set.");
+      const text = hintBtn.getAttribute("data-hint") || "No hint set.";
       hintText.textContent = text;
 
-      // show
       hintPopup.classList.add("show");
       hintPopup.setAttribute("aria-hidden","false");
 
-      // hide after duration with fade
       clearTimeout(showHint._hideTimer);
       showHint._hideTimer = setTimeout(() => {
         hintPopup.style.opacity = "0";
@@ -225,48 +272,7 @@
         }, HINT_FADE_MS);
       }, HINT_DURATION_MS);
     }
-
     hintBtn.addEventListener("click", showHint);
-
-    // Submit with Enter key
-    document.getElementById("answer").addEventListener("keydown", (e) => {
-      if (e.key === "Enter") checkAnswer();
-    });
-  </script>
-
-  <script>
-    (function() {
-      const correctWord = "dream"; // change this to your desired answer
-      const nextPage = "level2.html";
-
-      const input = document.getElementById("answer");
-      const btn = document.getElementById("submitBtn");
-      const result = document.getElementById("result");
-
-      function check() {
-        const val = (input.value || "").trim().toLowerCase();
-        if (!val) {
-          result.className = "bad";
-          result.textContent = "Please enter something.";
-          return;
-        }
-        if (val === correctWord) {
-          result.className = "ok";
-          result.textContent = "Correct! Advancing...";
-          setTimeout(function() {
-            window.location.href = nextPage;
-          }, 900);
-        } else {
-          result.className = "bad";
-          result.textContent = "Incorrect. Try again.";
-        }
-      }
-
-      btn.addEventListener("click", check);
-      input.addEventListener("keydown", function(e) {
-        if (e.key === "Enter") check();
-      });
-    })();
   </script>
 </body>
 </html>
