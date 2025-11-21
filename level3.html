@@ -218,6 +218,20 @@
   <div id="hintPopup" class="hint-popup" aria-hidden="true">
     <div class="bubble" id="hintText"></div>
   </div>
+<div class="video-gallery">
+    <img src="thumb1.jpg" onclick="openVideo('video1.mp4')">
+    <img src="thumb2.jpg" onclick="openVideo('video2.mp4')">
+    <img src="thumb3.jpg" onclick="openVideo('video3.mp4')">
+    <img src="thumb4.jpg" onclick="openVideo('video4.mp4')">
+</div>
+
+<!-- Popup Modal -->
+<div id="videoModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeVideo()">&times;</span>
+        <video id="modalVideo" controls></video>
+    </div>
+</div>
 
   <script>
     const CORRECT_WORD = "tarantino";
@@ -275,3 +289,4 @@
   </script>
 </body>
 </html>
+
